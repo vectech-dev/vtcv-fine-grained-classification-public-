@@ -1,31 +1,21 @@
-from munch import Munch
-from vtcv_fine_grained_classification.src.models.model import Xception_V2_1
+import torch
 import torch.nn as nn
 
-def build_model(config, device, num_classes):
-    # Initialize the models
-    if not config.single_network_model:
-        base_model =Xception_V2_1(num_classes).to(device) 
-        emb_model  = Xception_V2_1(num_classes).to(device)
-        combine_attn_maps = nn.Sequential(
-                        nn.Conv2d(in_channels=2, out_channels=1, kernel_size=3, padding=1),
-                        nn.LeakyReLU()
-                    )
-        nets = Munch(base_model=base_model, emb_model=emb_model, combine_attn_maps=combine_attn_maps)
-    else:
-        base_model =Xception_V2_1(num_classes).to(device)
-        combine_attn_maps = nn.Sequential(
-                        nn.Conv2d(in_channels=1, out_channels=1, kernel_size=3, padding=1),
-                        nn.LeakyReLU()
-                    )
-        nets = Munch(base_model=base_model, combine_attn_maps=combine_attn_maps)
-         
-    return nets
+from vtcv_fine_grained_classification.src.models.model import Xception_V2_1
 
 
-def define_losses(criterion_class):
-    losses = Munch()
-    losses.criterion = criterion_class
-    return losses
-    
+def build_model(config, device, load_tax=True):
+    nets = {"base_model": Xception_V2_1(config.num_classes, imagenet=config.imagenet_init)}
 
+    if config.use_taxonomic:
+        tax = Xception_V2_1(config.num_classes, imagenet=False)
+        if load_tax:
+            if not config.tax_model_path:
+                raise ValueError("use_taxonomic needs tax_model_path; run train.pretrain_tmn first")
+            tax.load_state_dict(torch.load(config.tax_model_path, map_location="cpu"))
+        tax.freeze_first_blocks(config.tax_frozen_blocks)
+        nets["emb_model"] = tax
+        # Eq. 6: one 3x3 conv, 2 channels in (semantic, taxonomic), 1 out, shared over the k pairs
+        nets["combine_attn_maps"] = nn.Sequential(nn.Conv2d(2, 1, kernel_size=3, padding=1), nn.LeakyReLU())
+
+    return nn.ModuleDict(nets).to(device)

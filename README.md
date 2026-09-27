@@ -1,41 +1,66 @@
-# Fine Grained Classification 
+# TaxoAttention: fine-grained mosquito classification
 
-## Getting Started
-## Prerequisites
+Code for *TaxoAttention: Fusing Semantic and Hierarchical Taxonomic Models with Attention-Guided Augmentation for Robust Mosquito Identification*.
 
-Ensure you have all the required packages installed:
+## Install
 
 ```bash
 pip install -e .
 ```
 
+A CUDA GPU is expected (`"device": "cuda"` in the configs).
 
-## Running the Code
+## Data
 
-For training: 
+MosquitoTax-200 (white-balanced and masked images, labels, specimen source, and the official split) is on Zenodo: DOI 10.5281/zenodo.XXXXXXX.
 
-Execute the following command to run the system:
+The datasheet CSV needs the columns `Id` (image path, relative to `data_root`), `y` (class 0-31), `Split` (`Train` / `Valid` / `Test`) and `Species_Name`. Optional: `Genus` (otherwise the first word of `Species_Name`), `Sex` (used for sex-aware positives), `Mask_Path`.
+
+Set `datasheet_path` and `data_root` in the configs under `config_examples/paper/`.
+
+## Reproduce the paper
+
+1. Pretrain the taxonomic stream (Section III-A):
+
 ```bash
-python -m vtcv_fine_grained_classification --config batch/TrainConfig.json
+python -m vtcv_fine_grained_classification --mode pretrain --config config_examples/paper/tmn.json
 ```
 
-For testing :
+2. Train the ablation runs of Table II (one config per experiment and seed):
+
 ```bash
-python -m vtcv_fine_grained_classification --exp-dir experiments/example --mode test
+for f in config_examples/paper/exp*_seed*.json; do
+  python -m vtcv_fine_grained_classification --mode train --config "$f"
+done
 ```
 
-## vizualize accuracy and loss
+3. Test each run on the held-out test split:
+
 ```bash
-#runs is a directory that stores the event files
-tensorboard --logdir=runs
+for d in experiments/exp*_seed*; do
+  python -m vtcv_fine_grained_classification --mode test --exp-dir "$d"
+done
 ```
 
-## Key Features
+4. Tables II and III (mean and SD over seeds, paired bootstrap CI, McNemar with Holm correction):
 
-   - Built on top of PyTorch, inspired by [aioz-ai/sac](https://github.com/aioz-ai/sac).
-   - Customized to work with our specific dataset.
-   - Uses a unique embedding process for fine-grained classification.
+```bash
+python -m vtcv_fine_grained_classification.test.paper_stats --runs config_examples/paper/paper_runs.json
+```
 
-## Contributions
-Dataset : https://drive.google.com/file/d/1nCb4z23g46bUk7pQNPBavywyQrjOA-lA/view?usp=drive_link
-path_of_csv:https://drive.google.com/file/d/1rLhjwBlw82jf_zSWSLYBDkPqIsJKXUh7/view?usp=sharing
+## Experiments
+
+| Exp | Aug | Contrast (`w_div > 0`) | Taxonomic | k |
+|---|---|---|---|---|
+| 0 | | | | 2 |
+| 1 | ✓ | | | 2 |
+| 2 | ✓ | | ✓ | 2 |
+| 3 | | ✓ | | 2 |
+| 4 | ✓ | ✓ | | 2 |
+| 5 | | ✓ | ✓ | 2 |
+| 6 | ✓ | ✓ | ✓ | 2 |
+| 7 | | | ✓ | 2 |
+| 8 | ✓ | ✓ | ✓ | 1 |
+| 9 | ✓ | ✓ | ✓ | 3 |
+
+TensorBoard logs are written to `runs/`.

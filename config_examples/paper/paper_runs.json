@@ -1,0 +1,118 @@
+{
+  "num_classes": 32,
+  "pred_column": "pred",
+  "bootstrap": 10000,
+  "seed": 0,
+  "configs": {
+    "exp0": [
+      "experiments/exp0_seed1",
+      "experiments/exp0_seed2",
+      "experiments/exp0_seed3"
+    ],
+    "exp1": [
+      "experiments/exp1_seed1",
+      "experiments/exp1_seed2",
+      "experiments/exp1_seed3"
+    ],
+    "exp2": [
+      "experiments/exp2_seed1",
+      "experiments/exp2_seed2",
+      "experiments/exp2_seed3"
+    ],
+    "exp3": [
+      "experiments/exp3_seed1",
+      "experiments/exp3_seed2",
+      "experiments/exp3_seed3"
+    ],
+    "exp4": [
+      "experiments/exp4_seed1",
+      "experiments/exp4_seed2",
+      "experiments/exp4_seed3"
+    ],
+    "exp5": [
+      "experiments/exp5_seed1",
+      "experiments/exp5_seed2",
+      "experiments/exp5_seed3"
+    ],
+    "exp6": [
+      "experiments/exp6_seed1",
+      "experiments/exp6_seed2",
+      "experiments/exp6_seed3"
+    ],
+    "exp7": [
+      "experiments/exp7_seed1",
+      "experiments/exp7_seed2",
+      "experiments/exp7_seed3"
+    ],
+    "exp8": [
+      "experiments/exp8_seed1",
+      "experiments/exp8_seed2",
+      "experiments/exp8_seed3"
+    ],
+    "exp9": [
+      "experiments/exp9_seed1",
+      "experiments/exp9_seed2",
+      "experiments/exp9_seed3"
+    ]
+  },
+  "groups": {
+    "ablation": [
+      [
+        "exp6",
+        "exp0"
+      ],
+      [
+        "exp1",
+        "exp0"
+      ],
+      [
+        "exp2",
+        "exp0"
+      ],
+      [
+        "exp3",
+        "exp0"
+      ],
+      [
+        "exp4",
+        "exp0"
+      ],
+      [
+        "exp5",
+        "exp0"
+      ],
+      [
+        "exp7",
+        "exp0"
+      ],
+      [
+        "exp6",
+        "exp1"
+      ],
+      [
+        "exp6",
+        "exp2"
+      ],
+      [
+        "exp6",
+        "exp3"
+      ],
+      [
+        "exp6",
+        "exp4"
+      ],
+      [
+        "exp6",
+        "exp5"
+      ],
+      [
+        "exp6",
+        "exp7"
+      ],
+      [
+        "exp2",
+        "exp7"
+      ]
+    ]
+  }
+}
