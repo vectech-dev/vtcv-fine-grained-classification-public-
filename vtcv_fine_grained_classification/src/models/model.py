@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from pretrainedmodels import xception
 
+# same file as pretrainedmodels' ImageNet weights; the original host (data.lip6.fr) has an expired certificate
+XCEPTION_URL = "https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-cadene/xception-43020ad28.pth"
+
 
 class SEBlock(nn.Module):
     def __init__(self, channels, reduction=16):
@@ -26,7 +29,12 @@ class Xception_V2_1(nn.Module):
 
     def __init__(self, num_classes=32, imagenet=True):
         super().__init__()
-        self.model = xception(num_classes=1000, pretrained="imagenet" if imagenet else None)
+        self.model = xception(num_classes=1000, pretrained=None)
+        if imagenet:
+            state = torch.hub.load_state_dict_from_url(XCEPTION_URL, map_location="cpu")
+            # the file names the ImageNet head "fc"; pretrainedmodels renames it to "last_linear"
+            state = {("last_linear." + k[3:] if k.startswith("fc.") else k): v for k, v in state.items()}
+            self.model.load_state_dict(state)
         self.model.last_linear = nn.Linear(728, num_classes)
         self.se_block = SEBlock(728)
         self.block11 = self.model.block11
