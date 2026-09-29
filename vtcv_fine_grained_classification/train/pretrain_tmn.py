@@ -32,7 +32,7 @@ class HierarchicalTriplets(Dataset):
         self.base = base
         df = base.df
         self.labels = df["y"].to_numpy()
-        self.sex = df["Sex"].astype(str).str.lower().to_numpy() if "Sex" in df.columns else None
+        self.sex = df["Sex"].to_numpy()
         self.by_species = {y: np.flatnonzero(self.labels == y) for y in np.unique(self.labels)}
         genus_of = df.groupby("y")["Genus"].first().to_dict()
         self.genus_of = genus_of
@@ -45,8 +45,8 @@ class HierarchicalTriplets(Dataset):
     def _positive(self, idx):
         pool = self.by_species[self.labels[idx]]
         pool = pool[pool != idx] if len(pool) > 1 else pool
-        if self.sex is not None and self.sex[idx] not in ("nan", "", "unknown"):
-            other = pool[(self.sex[pool] != self.sex[idx]) & ~np.isin(self.sex[pool], ["nan", "", "unknown"])]
+        if self.sex[idx] != "unknown":
+            other = pool[(self.sex[pool] != self.sex[idx]) & (self.sex[pool] != "unknown")]
             if len(other):
                 pool = other
         return int(random.choice(pool))

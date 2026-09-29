@@ -27,14 +27,19 @@ class MosquitoDataset(Dataset):
     """Rows of the datasheet with Split == mode.
 
     Needed columns: Id (image path), y (class), Split, Species_Name.
-    Optional: Genus, Sex, Mask_Path, Specimen_Id.
+    Optional: Genus_Name, Sex_Name, Mask_Path, Specimen_Id.
     """
 
     def __init__(self, config, mode, augment=None):
         df = pd.read_csv(config.datasheet_path, dtype={"Id": str, "Specimen_Id": str})
         df = df[(df["Split"] == mode) & (df["y"] >= 0)].reset_index(drop=True)
-        if "Genus" not in df.columns:
-            df["Genus"] = df["Species_Name"].str.split().str[0]
+        # one genus per class: majority of Genus_Name, or the first word of Species_Name
+        genus = df["Genus_Name"] if "Genus_Name" in df.columns else df["Species_Name"].str.split(r"[_ ]").str[0]
+        genus = genus.astype(str).str.lower()
+        df["Genus"] = df["y"].map(genus.groupby(df["y"]).agg(lambda g: g.mode().iloc[0]))
+        sex = df["Sex_Name"] if "Sex_Name" in df.columns else df.get("Sex", pd.Series("", index=df.index))
+        sex = sex.astype(str).str.lower()
+        df["Sex"] = sex.where(sex.isin(["female", "male"]), "unknown")
         self.df = df
         self.config = config
         self.mode = mode
