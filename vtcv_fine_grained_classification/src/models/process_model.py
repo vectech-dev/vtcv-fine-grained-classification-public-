@@ -40,7 +40,7 @@ def forward_pass(images, nets, config, alpha, d_phi, train, need_maps):
 
     if config.use_aug:
         a = maps_img.detach()
-        out["images_crop"] = crop_images(images, attention_crop(a, alpha))
+        out["images_crop"] = crop_images(images, attention_crop(a, alpha), config.crop_background)
         out["images_drop"] = attention_drop(images, a, d_phi)
         if train:
             out["logits_crop"] = nets["base_model"](out["images_crop"])[0]

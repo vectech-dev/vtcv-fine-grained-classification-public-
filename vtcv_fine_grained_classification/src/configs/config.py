@@ -45,6 +45,7 @@ class ExperimentationConfig(BaseModel):
     alpha_crop_start: float = 0.0
     d_phi: float = 0.8
     d_phi_start: float = 1.0
+    crop_background: List[int] = [255, 0, 255]
 
     # taxonomic stream (Section III-A)
     tax_model_path: Optional[str] = None

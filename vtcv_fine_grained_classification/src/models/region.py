@@ -18,7 +18,8 @@ def attention_crop(maps, alpha):
 
 
 def attention_drop(images, maps, d_phi):
-    """Eq. 12-14: tau = d_phi * max over (x, y, i); zero every pixel that is >= tau in any of the k maps."""
+    """Eq. 12-14: tau = d_phi * max over (x, y, i); keep pixels <= tau in at least one map,
+    so every pixel above tau in all k maps is set to zero."""
     tau = d_phi * maps.flatten(1).max(1)[0].view(-1, 1, 1, 1)
-    flagged = (maps >= tau).any(dim=1, keepdim=True)
-    return images * (~flagged).to(images.dtype)
+    keep = (maps <= tau).any(dim=1, keepdim=True)
+    return images * keep.to(images.dtype)

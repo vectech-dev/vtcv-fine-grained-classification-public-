@@ -1,14 +1,14 @@
 import torch
-import torch.nn.functional as F
 
 
-def crop_images(images, boxes):
-    """Eq. 11: cut each box out of its image and resize it to the full image size (bilinear)."""
+def crop_images(images, boxes, background):
+    """Eq. 11: keep the pixels inside each box and set all pixels outside it to the background colour.
+    The image size does not change."""
     _, _, h, w = images.shape
-    out = torch.empty_like(images)
+    bg = torch.tensor(background, device=images.device, dtype=images.dtype).view(1, 3, 1, 1) / 255.0
+    out = bg.expand_as(images).clone()
     for i, (x0, y0, x1, y1) in enumerate(boxes.tolist()):
         xa, ya = int(x0 * w), int(y0 * h)
         xb, yb = max(xa + 1, round(x1 * w)), max(ya + 1, round(y1 * h))
-        patch = images[i:i + 1, :, ya:yb, xa:xb]
-        out[i] = F.interpolate(patch, size=(h, w), mode="bilinear", align_corners=False)[0]
+        out[i, :, ya:yb, xa:xb] = images[i, :, ya:yb, xa:xb]
     return out
