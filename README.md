@@ -12,7 +12,7 @@ A CUDA GPU is expected (`"device": "cuda"` in the configs).
 
 ## Data
 
-MosquitoTax-200 (white-balanced and masked images, labels, specimen source, and the official split) is on Zenodo: DOI 10.5281/zenodo.XXXXXXX.
+MosquitoTax-200 (white-balanced and masked images, labels, specimen source, and the official split) is on Zenodo: DOI (https://zenodo.org/records/23043581)
 
 The datasheet CSV needs the columns `Id` (image path, relative to `data_root`), `y` (class 0-31), `Split` (`Train` / `Valid` / `Test`) and `Species_Name`. Optional: `Genus` (otherwise the first word of `Species_Name`), `Sex` (used for sex-aware positives), `Mask_Path`.
 
