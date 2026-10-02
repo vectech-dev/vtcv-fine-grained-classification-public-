@@ -27,7 +27,7 @@ The Zenodo datasheet `MosquitoTax200_split_anonymized.csv` has 6,400 images. The
 
 After this, the 942 test images come from 480 specimens, and no test specimen has an image in train or valid. Most classes keep 30 test images; eight classes have fewer (*Cx. tritaeniorhynchus* has 22).
 
-To create the split file used in the paper from the Zenodo datasheet:
+The split file used in the paper is included in this repository at `data/mosquitotax200_split.csv` (6,378 rows; columns `Id`, `Specimen_Id`, `View`, `y`, `Genus_Name`, `Species_Name`, `Sex_Name`, `Split`). It was made from the Zenodo datasheet as follows:
 
 ```python
 import pandas as pd
@@ -41,7 +41,7 @@ assert (counts["Train"], counts["Valid"], counts["Test"]) == (4479, 957, 942), c
 df.to_csv("data/mosquitotax200_split.csv", index=False)
 ```
 
-The configs expect this file at `data/mosquitotax200_split.csv`.
+The configs expect this file at `data/mosquitotax200_split.csv`. Image paths in `Id` are relative to `data_root`, the folder where you unzip `trays.zip`.
 
 ## Reproduce the paper
 
